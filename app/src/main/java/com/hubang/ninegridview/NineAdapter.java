@@ -31,4 +31,5 @@ public class NineAdapter extends NineGridViewAdapter<String> {
         ArrayList<ImageInfo> imageInfos = getImageInfos(nineGridView, index, maxDatas);
         ImagePreview.create().images(imageInfos).selectPostion(index).start(context);
     }
+
 }

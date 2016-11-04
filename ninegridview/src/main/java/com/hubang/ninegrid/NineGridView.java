@@ -246,6 +246,20 @@ public class NineGridView<T> extends ViewGroup {
         return mImageLoader;
     }
 
+    public NineGridViewAdapter getAdapter() {
+        return mAdapter;
+    }
+
+    /**
+     * 这个方法是刷新重用adapter的
+     * @param datas
+     */
+    public void setData(List<T> datas) {
+        mAdapter.setDatas(datas);
+        setAdapter(mAdapter);
+        return;
+    }
+
     public interface ImageLoader<T> {
         /**
          * 需要子类实现该方法，以确定如何加载和显示图片
