@@ -95,7 +95,7 @@ public class NineGridView<T> extends ViewGroup {
         for (int i = 0; i < childrenCount; i++) {
             ImageView childrenView = (ImageView) getChildAt(i);
             if (mImageLoader != null) {
-                mImageLoader.onDisplayImage(getContext(), childrenView, mImgDatas.get(i));
+                mImageLoader.onDisplayImage(getContext(), childrenView, mImgDatas.get(i), childrenCount == 1);
             }
             int rowNum = i / columnCount;
             int columnNum = i % columnCount;
@@ -252,6 +252,7 @@ public class NineGridView<T> extends ViewGroup {
 
     /**
      * 这个方法是刷新重用adapter的
+     *
      * @param datas
      */
     public void setData(List<T> datas) {
@@ -268,7 +269,7 @@ public class NineGridView<T> extends ViewGroup {
          * @param imageView 需要展示图片的ImageView
          * @param urlData   图片地址泛型
          */
-        void onDisplayImage(Context context, ImageView imageView, T urlData);
+        void onDisplayImage(Context context, ImageView imageView, T urlData, boolean isSingle);
 
     }
 }

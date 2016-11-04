@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         NineGridView.setImageLoader(new NineGridView.ImageLoader<String>() {
             @Override
-            public void onDisplayImage(Context context, ImageView imageView, String urlData) {
+            public void onDisplayImage(Context context, ImageView imageView, String urlData, boolean isSelect) {
                 Glide.with(context).load(urlData).diskCacheStrategy(DiskCacheStrategy.ALL).into(imageView);
             }
         });
