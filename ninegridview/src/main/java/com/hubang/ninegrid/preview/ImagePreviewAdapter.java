@@ -81,7 +81,6 @@ public class ImagePreviewAdapter extends PagerAdapter {
         if (!isshowExcessPicOk && selectPosition == position) {
             showExcessPic(imageView);
         }
-
         //如果需要加载的loading,需要自己改写,不能使用这个方法
         NineGridView.getImageLoader().onDisplayImage(view.getContext(), imageView, imageInfos.get(position).getBigImageUrl(), true);
 
