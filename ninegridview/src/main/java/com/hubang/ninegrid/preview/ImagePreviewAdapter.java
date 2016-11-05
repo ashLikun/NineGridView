@@ -90,12 +90,6 @@ public class ImagePreviewAdapter extends PagerAdapter {
                 onPhotoTap();
             }
         });
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onPhotoTap();
-            }
-        });
 
         container.addView(view);
         return view;

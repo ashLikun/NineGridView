@@ -28,7 +28,7 @@ public class ImagePreviewActivity extends Activity implements ViewTreeObserver.O
 
     public static final String IMAGE_INFO = "IMAGE_INFO";
     public static final String IMAGE_SELECT = "IMAGE_SELECT";
-    public static final int ANIMATE_DURATION = 300;
+    public static final int ANIMATE_DURATION = 250;
     TextView numberTv;
     private RelativeLayout rootView;
 
