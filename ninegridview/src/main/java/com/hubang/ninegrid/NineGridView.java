@@ -25,6 +25,8 @@ public class NineGridView<T> extends ViewGroup {
     private int maxImageSize = 9;                   // 最大显示的图片数
     private int gridSpacing = 3;                    // 宫格间距，单位dp
     private int mode = MODE_FILL;                   // 默认使用fill模式
+    private boolean showMoreNumber = false;         // 显示更多数字
+    private ImageView.ScaleType singleScaleType = ImageView.ScaleType.FIT_START;         // 单张图的裁剪类型
 
     private int columnCount;    // 列数
     private int rowCount;       // 行数
@@ -55,6 +57,15 @@ public class NineGridView<T> extends ViewGroup {
         singleImageSize = a.getDimensionPixelSize(R.styleable.NineGridView_ngv_singleImageSize, singleImageSize);
         singleImageRatio = a.getFloat(R.styleable.NineGridView_ngv_singleImageRatio, singleImageRatio);
         maxImageSize = a.getInt(R.styleable.NineGridView_ngv_maxSize, maxImageSize);
+        showMoreNumber = a.getBoolean(R.styleable.NineGridView_ngv_showMoreNumber, showMoreNumber);
+        int singleScaleTypeInt = a.getInt(R.styleable.NineGridView_ngv_singleScaleType, 1);
+        if (singleScaleTypeInt == 1) {
+            singleScaleType = ImageView.ScaleType.CENTER_CROP;
+        } else if (singleScaleTypeInt == 5) {
+            singleScaleType = ImageView.ScaleType.FIT_START;
+        } else if (singleScaleTypeInt == 3) {
+            singleScaleType = ImageView.ScaleType.FIT_CENTER;
+        }
         mode = a.getInt(R.styleable.NineGridView_ngv_mode, mode);
         a.recycle();
 
@@ -78,9 +89,11 @@ public class NineGridView<T> extends ViewGroup {
                     gridHeight = singleImageSize;
                 }
             } else {
-//                gridWidth = gridHeight = (totalWidth - gridSpacing * (columnCount - 1)) / columnCount;
-                //这里无论是几张图片，宽高都按总宽度的 1/3
-                gridWidth = gridHeight = (totalWidth - gridSpacing * 2) / 3;
+                //多于1张后计算宽高
+                gridWidth = gridHeight = (totalWidth - gridSpacing * (columnCount - 1)) / columnCount;
+                if (maxImageSize <= 4) {//小于4张 正方形
+                    gridHeight = (totalWidth - gridSpacing * (rowCount - 1)) / rowCount;
+                }
             }
             width = gridWidth * columnCount + gridSpacing * (columnCount - 1) + getPaddingLeft() + getPaddingRight();
             height = gridHeight * rowCount + gridSpacing * (rowCount - 1) + getPaddingTop() + getPaddingBottom();
@@ -101,7 +114,12 @@ public class NineGridView<T> extends ViewGroup {
             int columnNum = i % columnCount;
             int left = (gridWidth + gridSpacing) * columnNum + getPaddingLeft();
             int top = (gridHeight + gridSpacing) * rowNum + getPaddingTop();
-            int right = left + gridWidth;
+            int right;
+            if (maxImageSize <= 4 && childrenCount == 3 && i == 2) {
+                right = left + gridWidth * 2 + gridSpacing;
+            } else {
+                right = left + gridWidth;
+            }
             int bottom = top + gridHeight;
             childrenView.layout(left, top, right, bottom);
         }
@@ -129,13 +147,23 @@ public class NineGridView<T> extends ViewGroup {
 
         //默认是3列显示，行数根据图片的数量决定
         rowCount = imageCount / 3 + (imageCount % 3 == 0 ? 0 : 1);
-        columnCount = 3;
+        columnCount = imageCount >= 3 ? 3 : imageCount % 3;
         //grid模式下，显示4张使用2X2模式
         if (mode == MODE_GRID) {
             if (imageCount == 4) {
                 rowCount = 2;
                 columnCount = 2;
             }
+        }
+        //如果max为4 就2列  2行显示
+        if (maxImageSize <= 4) {
+            rowCount = imageCount >= maxImageSize ? 2 : (imageCount > 2 ? 2 : 1);
+            columnCount = 2;
+        }
+        //如果是单张  就一行一列
+        if (imageCount == 1) {
+            rowCount = 1;
+            columnCount = 1;
         }
 
         //保证View的复用，避免重复创建
@@ -159,17 +187,18 @@ public class NineGridView<T> extends ViewGroup {
             }
         }
         //修改最后一个条目，决定是否显示更多
-        if (adapter.getDatas().size() > maxImageSize) {
+        if (showMoreNumber && adapter.getDatas().size() > maxImageSize) {
             View child = getChildAt(maxImageSize - 1);
             if (child instanceof NineGridViewWrapper) {
                 NineGridViewWrapper imageView = (NineGridViewWrapper) child;
                 imageView.setMoreNum(adapter.getDatas().size() - maxImageSize);
             }
         }
+
         if (getChildCount() == 1) {
             ImageView child = (ImageView) getChildAt(0);
             child.setAdjustViewBounds(true);
-            child.setScaleType(ImageView.ScaleType.FIT_START);
+            child.setScaleType(singleScaleType);
 
         }
         mImgDatas = imgDatas;
