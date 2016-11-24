@@ -10,7 +10,7 @@
 ## 1.用法
 使用前，对于Android Studio的用户，可以选择添加:
 ```java
-	compile 'com.github.496546144:ninegridview:1.1.7'
+	compile 'com.github.496546144:ninegridview:1.2.0'
 ```
 或者使用
 ```java
