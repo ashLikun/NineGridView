@@ -67,5 +67,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return list;
     }
-    int max = 1;
+    int max = 4;
 }

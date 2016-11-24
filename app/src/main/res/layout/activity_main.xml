@@ -17,14 +17,14 @@
 
     <com.hubang.ninegrid.NineGridView
         android:id="@+id/photosGv"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="#ff0000"
         app:ngv_gridSpacing="1dp"
-        app:ngv_maxSize="9"
+        app:ngv_maxSize="4"
         app:ngv_mode="grid"
         app:ngv_singleImageSize="200dp"
-        app:ngv_singleScaleType="CENTER_CROP"></com.hubang.ninegrid.NineGridView>
+        app:ngv_singleScaleType="FIT_START"></com.hubang.ninegrid.NineGridView>
 
     <ImageView
         android:id="@+id/image"

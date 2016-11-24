@@ -24,7 +24,7 @@ public class NineGridView<T> extends ViewGroup {
     private float singleImageRatio = 1.0f;          // 单张图片的宽高比(宽/高)
     private int maxImageSize = 9;                   // 最大显示的图片数
     private int gridSpacing = 3;                    // 宫格间距，单位dp
-    private int mode = MODE_FILL;                   // 默认使用fill模式
+    private int mode = MODE_GRID;                   // 默认使用MODE_GRID模式
     private boolean showMoreNumber = false;         // 显示更多数字
     private ImageView.ScaleType singleScaleType = ImageView.ScaleType.FIT_START;         // 单张图的裁剪类型
 
@@ -32,6 +32,7 @@ public class NineGridView<T> extends ViewGroup {
     private int rowCount;       // 行数
     private int gridWidth;      // 宫格宽度
     private int gridHeight;     // 宫格高度
+    private int fourTotalWidth;     // 2-4张时候容器大小
 
     private List<ImageView> imageViews;
     private List<T> mImgDatas;
@@ -58,7 +59,7 @@ public class NineGridView<T> extends ViewGroup {
         singleImageRatio = a.getFloat(R.styleable.NineGridView_ngv_singleImageRatio, singleImageRatio);
         maxImageSize = a.getInt(R.styleable.NineGridView_ngv_maxSize, maxImageSize);
         showMoreNumber = a.getBoolean(R.styleable.NineGridView_ngv_showMoreNumber, showMoreNumber);
-        int singleScaleTypeInt = a.getInt(R.styleable.NineGridView_ngv_singleScaleType, 1);
+        int singleScaleTypeInt = a.getInt(R.styleable.NineGridView_ngv_singleScaleType, 5);
         if (singleScaleTypeInt == 1) {
             singleScaleType = ImageView.ScaleType.CENTER_CROP;
         } else if (singleScaleTypeInt == 5) {
@@ -74,12 +75,13 @@ public class NineGridView<T> extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = 0;
         int totalWidth = width - getPaddingLeft() - getPaddingRight();
-        if (mImgDatas != null && mImgDatas.size() > 0) {
-            if (mImgDatas.size() == 1) {
+
+        int childCount = getChildCount();
+        if (childCount > 0) {
+            if (childCount == 1) {
                 gridWidth = singleImageSize > totalWidth ? totalWidth : singleImageSize;
                 gridHeight = (int) (gridWidth / singleImageRatio);
                 //矫正图片显示区域大小，不允许超过最大显示范围
@@ -88,11 +90,25 @@ public class NineGridView<T> extends ViewGroup {
                     gridWidth = (int) (gridWidth * ratio);
                     gridHeight = singleImageSize;
                 }
+                measureChild(getChildAt(0), MeasureSpec.makeMeasureSpec(gridWidth, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(gridHeight, MeasureSpec.EXACTLY));
             } else {
+                if (childCount <= 4 && mode == MODE_GRID && maxImageSize > 4) {
+                    int scale = (int) (totalWidth * 0.8f);//如果小于2-4张  那么容器的大小缩小
+                    if (fourTotalWidth < scale) {
+                        fourTotalWidth = scale;
+                    }
+                    totalWidth = fourTotalWidth;
+                }
                 //多于1张后计算宽高
                 gridWidth = gridHeight = (totalWidth - gridSpacing * (columnCount - 1)) / columnCount;
-                if (maxImageSize <= 4) {//小于4张 正方形
+                if (maxImageSize <= 4) {//最大显示小于4张 正方形
                     gridHeight = (totalWidth - gridSpacing * (rowCount - 1)) / rowCount;
+                }
+                for (int i = 0; i < childCount; i++) {
+                    View childView = getChildAt(i);
+                    measureChild(childView, MeasureSpec.makeMeasureSpec(gridWidth, MeasureSpec.EXACTLY),
+                            MeasureSpec.makeMeasureSpec(gridHeight, MeasureSpec.EXACTLY));
                 }
             }
             width = gridWidth * columnCount + gridSpacing * (columnCount - 1) + getPaddingLeft() + getPaddingRight();
@@ -150,9 +166,9 @@ public class NineGridView<T> extends ViewGroup {
         columnCount = imageCount >= 3 ? 3 : imageCount % 3;
         //grid模式下，显示4张使用2X2模式
         if (mode == MODE_GRID) {
-            if (imageCount == 4) {
-                rowCount = 2;
-                columnCount = 2;
+            if (imageCount >= 1 && imageCount <= 4) {
+                rowCount = imageCount >= 3 ? 2 : 1;
+                columnCount = imageCount > 1 ? 2 : 1;
             }
         }
         //如果max为4 就2列  2行显示
